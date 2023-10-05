@@ -10,6 +10,17 @@
             success: null
         }, options);
 
+        // instantiate the modal used to block page during zip file uploading/unpacking
+        $("#zipfile-attachment-processing-modal").dialog({
+            autoOpen: false,
+            classes: { "ui-dialog-titlebar-close": "display-none" },
+            closeOnEscape: false,
+            draggable: false,
+            modal: true,
+            resizable: false,
+            title: "Processing .zip File",
+        });
+
         $(settings.container).on('click', 'a.delete-upload', function() {
             var row = $(this).closest('.upload-item');
             $.ajax({
@@ -45,6 +56,7 @@
         };
 
         var handleResponse = function(data, signal) {
+            $("#zipfile-attachment-processing-modal").dialog("close");
             if(data.ok) {
                 if(settings.success) {
                     settings.success(data);
@@ -117,6 +129,10 @@
                 }
                 formData.append(name, value);
             });
+
+            if (file.name.split('.').pop() === "zip") {
+                $("#zipfile-attachment-processing-modal").dialog("open");
+            };
 
             xhr.open('POST', settings.url, true);
             xhr.setRequestHeader('X-REQUESTED-WITH', 'XMLHttpRequest');
